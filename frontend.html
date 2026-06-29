@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Preparation Assistant</title>
+   
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+                     
+
+             
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+        }
+       
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .image-container img {
+            width: 320px;
+            max-width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+        textarea {
+            width: 100%;
+            height: 160px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 15px;
+            resize: vertical;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-left:6px solid #7c3aed;
+box-shadow:0 5px 15px rgba(0,0,0,.08);
+        }
+
+        button {
+            width: 100%;
+            margin-top: 15px;
+            padding: 14px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .result-title {
+            margin-top: 25px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+      #result {
+    background:#f8fafc;
+    border-left:5px solid #2563eb;
+}
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: gray;
+            font-size: 13px;
+        }
+
+        .loading {
+            color: #2563eb;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🤖🎯 AI Interview Preparation Assistant</h1>
+
+    <p class="subtitle"> Generate interview questions, sample answers, revision topics, and preparation tips using AI </p>
+   
+     <div class="image-container">
+    <img src="images/img.png" alt="Interview">
+    </div>
+    <label><b>💼 Job Role</b></label>
+
+<input
+type="text"
+id="jobRole"
+placeholder="Example: Data Analyst"
+style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:15px;">
+
+<label><b>📈 Experience</b></label>
+
+<select
+id="experience"
+style="width:100%;padding:12px;border:2px solid #ddd;border-radius:10px;margin-bottom:15px;">
+
+<option>Fresher</option>
+<option>0-2 Years</option>
+<option>2-5 Years</option>
+<option>5+ Years</option>
+
+</select>
+<label><b>📝 Interview Type</b></label>
+
+<select id="interviewType">
+
+<option>Technical</option>
+<option>HR</option>
+<option>Behavioral</option>
+<option>Mixed</option>
+
+</select>
+<label><b>✨ Additional Request (Optional)</b></label>
+
+<textarea
+id="extra"
+placeholder="Example: Include SQL and HR questions."
+style="height:120px;">
+</textarea>
+
+    <button onclick="generateContent()">
+        Generate interview guide 
+    </button>
+
+    <h3 class="result-title">Interview Preparation Guide </h3>
+
+    <div id="result"> </div>
+<button onclick="copyResult()">
+    📋 Copy Result
+</button>    
+
+    <div class="footer">
+        Developed by Asna
+
+        Powered by FastAPI + Groq
+    </div>
+
+</div>
+
+<script>
+async function generateContent() {
+
+const jobRole=document.getElementById("jobRole").value;
+
+const experience=document.getElementById("experience").value;
+
+const interviewType=document.getElementById("interviewType").value;
+
+const extra=document.getElementById("extra").value;
+
+const prompt=`
+You are an expert interview coach.
+
+Job Role: ${jobRole}
+
+Experience: ${experience}
+
+Interview Type: ${interviewType}
+
+Additional Request:
+${extra}
+
+Generate:
+
+1. Interview Questions
+
+2. Sample Answers
+
+3. Topics to Revise
+
+4. Preparation Tips
+`;
+
+    if(!jobRole.trim())
+{
+alert("Enter Job Role");
+return;
+}
+
+    document.getElementById("result").innerHTML =
+        "<span class='loading'>Generating content...</span>";
+
+    try {
+
+        const response = await fetch(
+            "http://127.0.0.1:8080/generate",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    prompt: prompt
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        document.getElementById("result").innerText =
+            data.content ||
+            data.generated_text ||
+            JSON.stringify(data, null, 2);
+
+    } catch (error) {
+
+        document.getElementById("result").innerText =
+            "Error connecting to the API. Make sure FastAPI is running.";
+
+        console.error(error); }
+    function copyResult() {
+
+    const text = document.getElementById("result").innerText;
+
+    navigator.clipboard.writeText(text);
+
+    alert("Copied!");
+
+}
+}
+</script>
+
+</body>
+</html>
